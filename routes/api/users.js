@@ -6,8 +6,19 @@ const jwt = require('jsonwebtoken');
 const keys = require('../../config/keys');
 const validateRegisterInput = require('../../validation/register');
 const validateLoginInput = require('../../validation/login');
+const passport = require('passport');
 
 router.get("/test", (req, res) => res.json({ msg: "This is the users route" }));
+
+router.get("/current", passport.authenticate('jwt', {session: false}), (req, res) => {
+    res.json({
+      id: req.user.id,
+      handle: req.user.handle,
+      email: req.user.email
+    });
+
+    // res.json({msg: 'Success'})
+  })
 
 router.post('/register', (req, res) => {
   const { errors, isValid } = validateRegisterInput(req.body);
@@ -39,6 +50,12 @@ router.post('/register', (req, res) => {
 })
 
 router.post('/login', (req, res)=>{
+  const { errors, isValid } = validateLoginInput(req.body);
+
+  if(!isValid){
+    return res.status(400).json(errors);
+  }
+
   const email = req.body.email;
   const password = req.body.password;
 
@@ -63,7 +80,7 @@ router.post('/login', (req, res)=>{
               (err, token) => {
                 res.json({
                   success: true,
-                  token: "Bearer" + token
+                  token: "Bearer " + token
                 });
               }
             )

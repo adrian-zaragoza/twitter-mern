@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const db = require('./config/keys').mongoURI;
 const bodyParser = require('body-parser');
+const passport = require('passport');
 const users = require("./routes/api/users");
 const tweets = require("./routes/api/tweets");
 const User = require('./models/User');
@@ -15,15 +16,10 @@ mongoose
   .catch(err => console.log(err));
 
 
-app.get("/", (req, res) => {
-  const user = new User({
-    handle: "jim",
-    email: "jim@jim.jim",
-    password: "jimisgreat123"
-  })
-  user.save()
-  res.send("Hello World")
-});
+app.get("/", (req, res) => res.send("Hello World"));
+
+app.use(passport.initialize());
+require('./config/passport')(passport);
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
